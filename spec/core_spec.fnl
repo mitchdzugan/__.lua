@@ -1,5 +1,5 @@
 (import-macros {: desc : spec} :busted)
-(local _ (require :__))
+(local _ (require :core))
 
 (desc "util library"
   (spec "dig"

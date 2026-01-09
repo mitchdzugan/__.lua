@@ -8,6 +8,7 @@
     let
       mkLuaDeps = luaPkgs: with luaPkgs; [
         inspect
+        middleclass
       ];
     in (mitch-utils.mkZnFnl "__" "0.0.1-0" mkLuaDeps ./.)
   );
