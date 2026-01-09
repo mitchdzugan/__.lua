@@ -24,8 +24,8 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1767925782,
-        "narHash": "sha256-rCRG45e6y1zPbLVYOc9WggdnQIz60bMz5Mr/PR4YnbE=",
+        "lastModified": 1767928764,
+        "narHash": "sha256-6ywvY1nJK5tYL5Nke1EjyqlVj00pw/u7W5PhvRKc81s=",
         "path": "/home/dz/Projects/mitch-utils.nix",
         "type": "path"
       },

@@ -9,6 +9,7 @@
       mkLuaDeps = luaPkgs: with luaPkgs; [
         busted
         fennel
+        inspect
       ];
     in (mitch-utils.mkZnFnl "__" "0.0.1-0" mkLuaDeps ./.)
   );
