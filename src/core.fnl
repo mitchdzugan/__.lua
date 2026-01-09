@@ -8,6 +8,7 @@
   dst)
 
 (fn nil? [a] (= a nil))
+(fn any? [a] (not= a nil))
 (fn table? [a] (= (type a) "table"))
 (fn num? [a] (= (type a) "number"))
 (fn str? [a] (= (type a) "string"))
@@ -30,17 +31,21 @@
   (let [inner-wrapped (coroutine.wrap outer-wrapped)]
     #{:val (inner-wrapped $...) : final?}))
 
-{: assign
- : dig
- : nil?
- : table?
- : fn?
- : co?
- : num?
- : str?
- : bool?
- : co-wrap
- :co-new coroutine.create
- :co-yield coroutine.yield
- :co-check coroutine.status
- :co-play coroutine.resume}
+(fn gtr [a] (if (fn? a) a #(. $1 a)))
+
+(-> {: assign
+     : dig
+     : nil?
+     : any?
+     : table?
+     : fn?
+     : co?
+     : num?
+     : str?
+     : bool?
+     : gtr
+     : co-wrap
+     :co-new coroutine.create
+     :co-yield coroutine.yield
+     :co-check coroutine.status
+     :co-play coroutine.resume})
