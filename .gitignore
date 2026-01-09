@@ -5,3 +5,5 @@ result*
 .direnv
 
 spec/**/*.lua
+
+/**/flsproject.fnl
