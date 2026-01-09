@@ -3,4 +3,5 @@
 
 (desc "Map"
   (spec "get"
-    (assert.same 1 (: (Map [[:a 1]]) :get :a))))
+    (assert.same 1 (: (Map [[:a 1]]) :get :a))
+    (assert.same nil (: (Map) :get :a))))

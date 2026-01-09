@@ -8,7 +8,7 @@
 (fn MapClass.initialize [self kvs opts]
   (set self.data {})
   (set self.opts (or opts {}))
-  (each [_ [k v] (pairs kvs)]
+  (each [_ [k v] (pairs (or kvs []))]
     (self:set k v)))
 
 (fn MapClass.to-key [self k]
