@@ -33,7 +33,7 @@
 
 (fn MapClass.imkeys [self]
   (->> (self:ientries)
-       (_.imap (fn [[k  ]] (Maybe k)))))
+       (_.imap (fn [[k]] (Maybe k)))))
 
 (fn MapClass.imvals [self]
   (->> (self:ientries)

@@ -15,9 +15,8 @@
   (let [[a1 a2] [...]
         (_id data) (if (_.table? a1) (values nil a1) (values a1 a2))
         id (or _id self.next-id)
-        v (_.assign {} data {: name : id })]
-    (when (and (_.num? id)
-               (>= id self.next-id))
+        v (_.assign {} data {: name : id})]
+    (when (and (_.num? id) (>= id self.next-id))
       (set self.next-id (_.inc id)))
     (_.assign self.var-by-name {name v})
     (_.assign self.name-by-id {id name})))

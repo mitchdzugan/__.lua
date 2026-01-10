@@ -22,22 +22,28 @@
 
 (fn co-wrap [f]
   (var final? false)
+
   (fn outer-wrapped [...]
     (let [res (f ...)]
       (set final? true)
       res))
+
   (let [inner-wrapped (coroutine.wrap outer-wrapped)]
     #{:val (inner-wrapped $...) : final?}))
 
-(fn gtr [a] (if (fn? a) a #(. $1 a)))
+(fn gtr [a]
+  (if (fn? a) a #(. $1 a)))
 
 (fn tail [inits body-fn]
   (fn call-self [...] (tail (table.pack ...) body-fn))
+
   (body-fn call-self (table.unpack inits)))
 
 (fn It [it-params]
   (local i {: it-params})
+
   (fn i.unpack [] (table.unpack (. i :it-params)))
+
   i)
 
 (fn ifn1 [tot f]
@@ -57,12 +63,12 @@
 (fn imap-impl [map i]
   (let [f (co-wrap (fn []
                      (tail (table.pack (i:unpack))
-                           (fn [recur it-fn st-t c-var]
-                             (let [(k v) (it-fn st-t c-var)]
-                               (if (nil? k) nil
-                                   (do
-                                     (coroutine.yield (table.pack (map k v)))
-                                     (recur it-fn st-t k))))))))]
+                       (fn [recur it-fn st-t c-var]
+                         (let [(k v) (it-fn st-t c-var)]
+                           (if (nil? k) nil
+                               (do
+                                 (coroutine.yield (table.pack (map k v)))
+                                 (recur it-fn st-t k))))))))]
     #(let [{:val v : final?} (f)]
        (if final? nil (table.unpack v)))))
 
@@ -72,10 +78,15 @@
 (fn imap-vals [map ...]
   (imap-impl (fn [k v] (values k (map k v))) (It [...])))
 
-(fn mk-multi-n [n] (fn [...] (let [args [...]] (. args n))))
+(fn mk-multi-n [n]
+  (fn [...]
+    (let [args [...]] (. args n))))
+
 (local multi-1 (mk-multi-n 1))
 (local multi-2 (mk-multi-n 2))
-(fn ivals [...] (imap-impl multi-2 (It [...])))
+(fn ivals [...]
+  (imap-impl multi-2 (It [...])))
+
 (fn tvals [t] (ivals (pairs t)))
 
 (fn inc [i] (+ i 1))
@@ -83,9 +94,10 @@
 
 (fn table-of-flat-kvs [...]
   (let [kv-list [...]]
-   (faccumulate [res {} i 1 (dec (length kv-list)) 2]
-     (let [k (. kv-list i) v (. kv-list (inc i))]
-       (assign res {k v})))))
+    (faccumulate [res {} i 1 (dec (length kv-list)) 2]
+      (let [k (. kv-list i)
+            v (. kv-list (inc i))]
+        (assign res {k v})))))
 
 (-> {: table-of-flat-kvs
      : assign

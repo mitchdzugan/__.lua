@@ -4,8 +4,7 @@
 (local BASE_CLASS_IDENT (fn []))
 
 (fn subclass? [any]
-  (and (_.table? any)
-       (_.fn? any.get-base-class-ident)
+  (and (_.table? any) (_.fn? any.get-base-class-ident)
        (= (any.get-base-class-ident) BASE_CLASS_IDENT)))
 
 (local BaseClass (_class "BaseClase"))
