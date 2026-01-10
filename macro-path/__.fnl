@@ -51,7 +51,12 @@
                             has-id? (= 1 (% (length varrest) 2))
                             id (if has-id? varrest1 nil)
                             dbody (if has-id? varrests varrest)]
-                        `(: ,name "defvar" ,(tostring varname) ,id [,(unpack dbody)])))
+                        `(: ,name
+                            "defvar"
+                            ,(tostring varname)
+                            ,id
+                            ((. (require :__) :table-of-flat-kvs)
+                             ,(unpack dbody)))))
             ,name)))
 
 ; (print (macroexpand `(mod.defenum Dir (N) (S) (E) (W))))

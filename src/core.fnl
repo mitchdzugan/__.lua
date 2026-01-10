@@ -81,7 +81,14 @@
 (fn inc [i] (+ i 1))
 (fn dec [i] (- i 1))
 
-(-> {: assign
+(fn table-of-flat-kvs [...]
+  (let [kv-list [...]]
+   (faccumulate [res {} i 1 (dec (length kv-list)) 2]
+     (let [k (. kv-list i) v (. kv-list (inc i))]
+       (assign res {k v})))))
+
+(-> {: table-of-flat-kvs
+     : assign
      : dig
      : nil?
      : any?
