@@ -1,5 +1,5 @@
 (import-macros {: desc : spec} :busted)
-(local _ (require :core))
+(import-macros _ :__-macros)
 
 (desc "util library"
   (spec "dig"
@@ -32,9 +32,9 @@
        (assert.same [11 12 13 14 15])
        (spec "imap"))
   (->> (_.tvals [10 11 12 13 14])
-       (_.imap _.inc)
-       (_.imap _.dec)
-       (_.imap _.inc)
+       (_.imap #(_.inc $1))
+       (_.imap #(_.dec $1))
+       (_.imap #(_.inc $1))
        _.ilist
        (assert.same [11 12 13 14 15])
        (spec "tvals"))

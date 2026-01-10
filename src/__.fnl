@@ -3,5 +3,6 @@
 (local dbg (require :dbg))
 (local Maybe (require :Maybe))
 (local Map (require :Map))
+(local Enum (require :Enum))
 
-(_.assign {: Maybe : Map} dbg class _)
+(_.assign {: Maybe : Map : Enum} dbg class _)
