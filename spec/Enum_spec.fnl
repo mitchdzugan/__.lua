@@ -1,5 +1,5 @@
 (import-macros {: desc : spec} :busted)
-(import-macros _ :__-macros)
+(import-macros _ :__)
 
 (_.defenum Dir
   (North :vert? true)
