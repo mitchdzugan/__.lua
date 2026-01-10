@@ -1,5 +1,6 @@
 (local _ (require :core))
 (local c (require :class))
+(local Maybe (require :Maybe))
 
 ;; module impl
 
@@ -26,14 +27,17 @@
 (fn MapClass.rm [self k]
   (tset self.data (self:to-key k) nil))
 
-(fn MapClass.ikeys [self]
-  (ipairs (icollect [_ {: k} (pairs self.data)] k)))
-
-(fn MapClass.ivals [self]
-  (ipairs (icollect [_ {: v} (pairs self.data)] v)))
-
 (fn MapClass.ientries [self]
-  (ipairs (icollect [_ {: k : v} (pairs self.data)] [k v])))
+  (->> (_.tvals self.data)
+       (_.imap (fn [{: k : v}] [k v]))))
+
+(fn MapClass.imkeys [self]
+  (->> (self:ientries)
+       (_.imap (fn [[k  ]] (Maybe k)))))
+
+(fn MapClass.imvals [self]
+  (->> (self:ientries)
+       (_.imap (fn [[_ v]] (Maybe v)))))
 
 ;; module return
 
