@@ -52,6 +52,11 @@
                            ((. (require :__) :table-of-flat-kvs) ,(unpack dbody)))))
                   ,name)))
 
-; (print (macroexpand `(mod.defenum Dir (N) (S) (E) (W))))
+(fn mod.R [binding _reqstring]
+  (let [reqstring (or _reqstring (tostring binding))]
+    `(local ,binding (require ,reqstring))))
+
+(fn mod.L [& body]
+  `(local ,(unpack body)))
 
 mod
