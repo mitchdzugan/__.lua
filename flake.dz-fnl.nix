@@ -1,6 +1,6 @@
 { pkgs, luaPackages, ... }:
 {
-  name = "__.lua";
+  name = "__";
   version = "0.0.1-0";
   luaDeps = [
     luaPackages.inspect
