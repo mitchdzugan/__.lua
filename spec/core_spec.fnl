@@ -4,12 +4,17 @@
 (desc "util library"
   (spec "dig"
     (assert.same 1 (_.dig {:a {:b 1}} [:a :b])))
+  (spec "_.M"
+    (assert.same 1 ((_.M$
+                      (fn $1.thing [] nil)
+                      (fn $1.exports [] 1)
+
+                      2))))
   (spec "assign"
     (assert.same {:a 1 :b 2} (_.assign {} {:a 1} {:b 2}))
     (assert.same {:a 1 :b 2} (_.assign {:a 2} {:a 1} {:b 2})))
-  (->> (_.tail [0 0]
-         (fn [recur i s]
-           (if (>= i 10) s (recur (+ 1 i) (+ i s)))))
+  (->> (_.tail$ [[i s] 0 0]
+         (if (>= i 10) s ($1 (+ 1 i) (+ i s))))
        (assert.same 45)
        (spec "tail"))
   (->> (_.ival-list (ipairs [:a :b :c :d :e]))

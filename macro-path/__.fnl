@@ -24,6 +24,7 @@
                  "dbg"
                  "co-yield"
                  "imap"
+                 "unpack"
                  "bool?"
                  "co-wrap"
                  "class"
@@ -58,5 +59,17 @@
 
 (fn mod.L [& body]
   `(local ,(unpack body)))
+
+(fn mod.tail$ [params & body]
+  (let [[fn-args & inits] params]
+    `((. (require :__) :tail) ,inits
+                              (fn [recur# ,(unpack fn-args)]
+                                (#(do
+                                    ,(unpack body)) recur#)))))
+
+(fn mod.M$ [& body]
+  `(#(do
+       ,body
+       $1.exports) {:exports {}}))
 
 mod
