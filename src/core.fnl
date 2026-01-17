@@ -35,7 +35,7 @@
   (if (fn? a) a #(. $1 a)))
 
 (local unpack (or _G.unpack table.unpack))
-(local pack (or _G.pack table.pack))
+(fn pack [...] [...])
 
 (fn tail [inits body-fn]
   (fn call-self [...] (tail (pack ...) body-fn))
