@@ -25,6 +25,7 @@
                  "co-yield"
                  "imap"
                  "unpack"
+                 "pack"
                  "bool?"
                  "co-wrap"
                  "class"

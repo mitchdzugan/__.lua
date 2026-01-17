@@ -35,9 +35,10 @@
   (if (fn? a) a #(. $1 a)))
 
 (local unpack (or _G.unpack table.unpack))
+(local pack (or _G.pack table.pack))
 
 (fn tail [inits body-fn]
-  (fn call-self [...] (tail (table.pack ...) body-fn))
+  (fn call-self [...] (tail (pack ...) body-fn))
 
   (body-fn call-self (unpack inits)))
 
@@ -64,12 +65,12 @@
 (local itable (ifn1 1 #(collect [k v ($1:unpack)] (values k v))))
 (fn imap-impl [map i]
   (let [f (co-wrap (fn []
-                     (tail (table.pack (i:unpack))
+                     (tail (pack (i:unpack))
                        (fn [recur it-fn st-t c-var]
                          (let [(k v) (it-fn st-t c-var)]
                            (if (nil? k) nil
                                (do
-                                 (coroutine.yield (table.pack (map k v)))
+                                 (coroutine.yield (pack (map k v)))
                                  (recur it-fn st-t k))))))))]
     #(let [{:val v : final?} (f)]
        (if final? nil (unpack v)))))
@@ -127,6 +128,7 @@
      : multi-2
      : co-wrap
      : unpack
+     : pack
      :co-new coroutine.create
      :co-yield coroutine.yield
      :co-check coroutine.status
