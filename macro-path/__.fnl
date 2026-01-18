@@ -58,6 +58,18 @@
   (let [reqstring (or _reqstring (tostring binding))]
     `(local ,binding (require ,reqstring))))
 
+(fn mod.R$ [binding _reqstring]
+  (let [reqstring (or _reqstring (tostring binding))]
+    `(tset $1 ,(tostring binding)
+           (do
+             (tset $1.required ,reqstring ,(tostring binding))
+             (require ,reqstring)))))
+
+(fn mod.REREQUIRE$ []
+  `(each [reqstring# binding# (pairs $1.required)]
+     (tset package.loaded reqstring# nil)
+     (tset $1 binding# (require reqstring#))))
+
 (fn mod.L [& body]
   `(local ,(unpack body)))
 
@@ -71,6 +83,6 @@
 (fn mod.M$ [& body]
   `(#(do
        ,body
-       $1.exports) {:exports {}}))
+       $1.exports) {:exports {} :required {}}))
 
 mod
