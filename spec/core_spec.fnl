@@ -4,21 +4,28 @@
 (desc "util library"
   (spec "dig"
     (assert.same 1 (_.dig {:a {:b 1}} [:a :b])))
+  (comment)
   (spec "_.M"
-    (assert.same [1 2 3] ((_.M$
-                            (_.R$ __)
-                            (fn $1.thing [] nil)
+    (assert.same [1 2 3 4 5] ((_.M$
+                                (_.R$ __)
+                                (fn $1.thing [] nil)
 
-                            (fn $1.exports []
-                              [($1.__.inc 0)
-                               (do
-                                 (set $1.__.lolx 2)
-                                 (. $1.__ :lolx))
-                               (do
-                                 (_.REREQUIRE$)
-                                 (or (. $1.__ :lolx) 3))])
+                                (fn $1.exports []
+                                  [($1.__.inc 0)
+                                   (do
+                                     (set $1.__.lolx 2)
+                                     (. $1.__ :lolx))
+                                   (do
+                                     (_.REREQUIRE$)
+                                     (or (. $1.__ :lolx) 3))
+                                   (do
+                                     (set $1.__.lolx 4)
+                                     (or (. (_.R$ __) :lolx) 5))
+                                   (do
+                                     (set $1.required {})
+                                     (or (. (_.R$ __) :lolx) 5))])
 
-                            2))))
+                                2))))
   (spec "assign"
     (assert.same {:a 1 :b 2} (_.assign {} {:a 1} {:b 2}))
     (assert.same {:a 1 :b 2} (_.assign {:a 2} {:a 1} {:b 2})))

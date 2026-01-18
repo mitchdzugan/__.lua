@@ -60,10 +60,14 @@
 
 (fn mod.R$ [binding _reqstring]
   (let [reqstring (or _reqstring (tostring binding))]
-    `(tset $1 ,(tostring binding)
-           (do
-             (tset $1.required ,reqstring ,(tostring binding))
-             (require ,reqstring)))))
+    `(do
+       (tset $1 ,(tostring binding)
+             (do
+               (when (not (. $1.required ,reqstring))
+                 (tset package.loaded ,reqstring nil))
+               (tset $1.required ,reqstring ,(tostring binding))
+               (require ,reqstring)))
+       (. $1 ,(tostring binding)))))
 
 (fn mod.REREQUIRE$ []
   `(each [reqstring# binding# (pairs $1.required)]
