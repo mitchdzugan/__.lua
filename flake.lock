@@ -24,11 +24,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1768687102,
-        "narHash": "sha256-dNRdOhOm+05BxBFsNXPdZs8sE46cKzkGym3NQY2za9g=",
+        "lastModified": 1768737491,
+        "narHash": "sha256-4bfBSzKnfTveAIQR1TaoSt4BTEGzcBhIKRjyGSBeUY8=",
         "owner": "mitchdzugan",
         "repo": "mitch-utils.nix",
-        "rev": "1149ce094a1de0ce10bd7d6db783c30e88c66501",
+        "rev": "aca53110f1313e9a1d7e3b9a7a31dede421626fb",
         "type": "github"
       },
       "original": {
