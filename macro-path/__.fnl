@@ -108,11 +108,19 @@
                      ((. (require :__) :import) ,reqstring #(set ,ident $1)))])
             (= (tostring e1) :loc)
             [`(local ,(unpack es))]
+            (= (tostring e1) :pub-)
+            (let [[ident value] es]
+              [`(let [v# ,value]
+                  (set (. ,MOD :pub ,(tostring ident)) v#)
+                  v#)])
             (= (tostring e1) :pub)
             (let [[ident value] es]
               [`(local ,ident (let [v# ,value]
                                 (set (. ,MOD :pub ,(tostring ident)) v#)
                                 v#))])
+            (= (tostring e1) :exp)
+            (let [[e2] es]
+              [`(set (. ,MOD :pub) ,e2)])
             [f]))
       [f]))
 
@@ -127,7 +135,8 @@
 
 (fn mod.module [& body]
   (let [MOD (gensym)]
-    `(let [,MOD {:pub {:$$:module {:key ((. (require :__) :get-key))
+    `(let [,MOD {:pub {:$$:module {:key (or ((. (require :__) :get-key))
+                                            (fn []))
                                    :id (or "." "")}}
                  :imports {}}]
        ((fn []
