@@ -25,7 +25,20 @@
                                      (set $1.required {})
                                      (or (. (_.R$ __) :lolx) 5))])
 
-                                2))))
+                                2)))
+    (comment "this test doesnt work because fennel paths dont get set up right"
+      " ony my busted wrapped"
+      (assert.same [1 2 3] (. (_.module (import t1 :test-module)
+                                        (pub vals
+                                             [(t1.inc 0)
+                                              (do
+                                                (set t1.lolx 2)
+                                                t1.lolx)
+                                              (or ((fn []
+                                                     (t1.reload-modules!)
+                                                     t1.lolx))
+                                                  3)]))
+                              :vals))))
   (spec "assign"
     (assert.same {:a 1 :b 2} (_.assign {} {:a 1} {:b 2}))
     (assert.same {:a 1 :b 2} (_.assign {:a 2} {:a 1} {:b 2})))

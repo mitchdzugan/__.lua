@@ -84,6 +84,55 @@
                                 (#(do
                                     ,(unpack body)) recur#)))))
 
+(local live-key (unpack (gensym)))
+
+(fn map-form [MOD f]
+  (if (list? f)
+      (let [[e1 & es] f]
+        (if (= (tostring e1) :fn)
+            (let [[e2 & erest] es
+                  pub? (= :pub. (string.sub (tostring e2) 1 4))
+                  ident (sym (string.sub (tostring e2) 5))]
+              (if pub?
+                  [`(local ,ident (let [f# (fn ,(unpack erest))]
+                                    (set (. ,MOD :pub ,(tostring ident)) f#)
+                                    f#))]
+                  [f]))
+            (= (tostring e1) :import)
+            (let [[ident reqstring_] es
+                  reqstring (or reqstring_ (tostring ident))]
+              [`(var ,ident nil)
+               `(set ,ident
+                     ((. (require :__) :import) ,reqstring #(set ,ident $1)))])
+            (= (tostring e1) :loc)
+            [`(local ,(unpack es))]
+            (= (tostring e1) :pub)
+            (let [[ident value] es]
+              [`(local ,ident (let [v# ,value]
+                                (set (. ,MOD :pub ,(tostring ident)) v#)
+                                v#))])
+            [f]))
+      [f]))
+
+(fn conj [l v]
+  (tset l #l v)
+  l)
+
+(fn flatten [l2d]
+  (accumulate [res [] _ l1d (ipairs l2d)]
+    (icollect [_ v (ipairs l1d) &into res]
+      v)))
+
+(fn mod.module [& body]
+  (let [MOD (gensym)]
+    `(let [,MOD {:pub {:$$:module {:key ((. (require :__) :get-key))
+                                    :id (or "." "")}}
+                 :imports {}}]
+       ((fn []
+          ,(unpack (flatten (icollect [_ f (ipairs body)]
+                              (map-form MOD f))))))
+       (. ,MOD :pub))))
+
 (fn mod.M$ [& body]
   `(#(do
        ,body

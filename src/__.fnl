@@ -4,5 +4,6 @@
 (local Maybe (require :Maybe))
 (local Map (require :Map))
 (local Enum (require :Enum))
+(local module_ (require :module))
 
-(_.assign {: Maybe : Map : Enum} dbg class _)
+(_.assign {: Maybe : Map : Enum} dbg class module_ _)
