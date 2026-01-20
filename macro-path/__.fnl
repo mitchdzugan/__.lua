@@ -33,6 +33,7 @@
                  "imap-vals"
                  "num?"
                  "reload-modules!"
+                 "refresh-modules!"
                  "Map"
                  "tail"])
 
