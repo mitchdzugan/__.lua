@@ -32,6 +32,7 @@
                  "multi-2"
                  "imap-vals"
                  "num?"
+                 "reload-modules!"
                  "Map"
                  "tail"])
 
@@ -126,7 +127,7 @@
 (fn mod.module [& body]
   (let [MOD (gensym)]
     `(let [,MOD {:pub {:$$:module {:key ((. (require :__) :get-key))
-                                    :id (or "." "")}}
+                                   :id (or "." "")}}
                  :imports {}}]
        ((fn []
           ,(unpack (flatten (icollect [_ f (ipairs body)]
