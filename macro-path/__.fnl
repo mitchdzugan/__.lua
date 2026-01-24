@@ -1,3 +1,26 @@
+(local im-sym-strs ["clone"
+                    "deep-clone"
+                    "assoc"
+                    "assoc-in"
+                    "push"
+                    "concat"
+                    "update"
+                    "update-in"
+                    "list"
+                    "list?"
+                    "merge"
+                    "merge-with"
+                    "merge-all"
+                    "get"
+                    "get-in"])
+
+(local im-mod {})
+
+(each [_ sym-str (pairs im-sym-strs)]
+  (tset im-mod sym-str
+        (fn [& body]
+          `((. (require :__) :im ,sym-str) ,(unpack body)))))
+
 (local sym-strs ["dig"
                  "starts-with?"
                  "ilist"
@@ -39,6 +62,8 @@
                  "tail"])
 
 (local mod {})
+
+(set mod.im im-mod)
 
 (each [_ sym-str (pairs sym-strs)]
   (tset mod sym-str
@@ -162,18 +187,15 @@
 
 (fn starts-with? [s start]
   (= start (s:sub 1 (length start))))
+
 (fn filter-forms% [preG? forms]
   (var seenG? false)
   (icollect [_ form (ipairs forms)]
     (let [G? (and (sym? form) (starts-with? (tostring form) "&"))]
       (set seenG? (or seenG? G?))
-      (if (and G? (not preG?))
-           (: (tostring form) :sub 2)
-      (and (not G?)
-                 (or (and preG? (not seenG?)) (and seenG? (not preG?))))
-        form
-        nil
-        ))))
+      (if (and G? (not preG?)) (: (tostring form) :sub 2)
+          (and (not G?) (or (and preG? (not seenG?)) (and seenG? (not preG?)))) form
+          nil))))
 
 (fn mod.|| [& body]
   (let [preG (filter-forms true body)
