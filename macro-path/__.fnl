@@ -1,4 +1,5 @@
 (local sym-strs ["dig"
+                 "starts-with?"
                  "ilist"
                  "dbg-str"
                  "tvals"
@@ -96,9 +97,11 @@
                   pub? (= :pub. (string.sub (tostring e2) 1 4))
                   ident (sym (string.sub (tostring e2) 5))]
               (if pub?
-                  [`(local ,ident (let [f# (fn ,(unpack erest))]
-                                    (set (. ,MOD :pub ,(tostring ident)) f#)
-                                    f#))]
+                  [`(var ,ident nil)
+                   `(set ,ident (let [f# (fn ,(unpack erest))]
+                                  (set (. ,MOD :pub :exports ,(tostring ident))
+                                       f#)
+                                  f#))]
                   [f]))
             (= (tostring e1) :import)
             (let [[ident reqstring_] es
@@ -108,19 +111,22 @@
                      ((. (require :__) :import) ,reqstring #(set ,ident $1)))])
             (= (tostring e1) :loc)
             [`(local ,(unpack es))]
+            (= (tostring e1) :exp)
+            (let [[value] es]
+              [`(let [v# ,value]
+                  (set (. ,MOD :pub :exports) v#)
+                  v#)])
             (= (tostring e1) :pub-)
             (let [[ident value] es]
               [`(let [v# ,value]
-                  (set (. ,MOD :pub ,(tostring ident)) v#)
+                  (set (. ,MOD :pub :exports ,(tostring ident)) v#)
                   v#)])
             (= (tostring e1) :pub)
             (let [[ident value] es]
               [`(local ,ident (let [v# ,value]
-                                (set (. ,MOD :pub ,(tostring ident)) v#)
+                                (set (. ,MOD :pub :exports ,(tostring ident))
+                                     v#)
                                 v#))])
-            (= (tostring e1) :exp)
-            (let [[e2] es]
-              [`(set (. ,MOD :pub) ,e2)])
             [f]))
       [f]))
 
@@ -135,7 +141,8 @@
 
 (fn mod.module [& body]
   (let [MOD (gensym)]
-    `(let [,MOD {:pub {:$$:module {:key (or ((. (require :__) :get-key))
+    `(let [,MOD {:pub {:exports {}
+                       :$$:module {:key (or ((. (require :__) :get-key))
                                             (fn []))
                                    :id (or "." "")}}
                  :imports {}}]
@@ -143,6 +150,40 @@
           ,(unpack (flatten (icollect [_ f (ipairs body)]
                               (map-form MOD f))))))
        (. ,MOD :pub))))
+
+(fn filter-forms [preG? forms]
+  (var seenG? false)
+  (icollect [_ form (ipairs forms)]
+    (let [G? (and (sym? form) (= "&" (tostring form)))]
+      (set seenG? (or seenG? G?))
+      (when (and (not G?)
+                 (or (and preG? (not seenG?)) (and seenG? (not preG?))))
+        form))))
+
+(fn starts-with? [s start]
+  (= start (s:sub 1 (length start))))
+(fn filter-forms% [preG? forms]
+  (var seenG? false)
+  (icollect [_ form (ipairs forms)]
+    (let [G? (and (sym? form) (starts-with? (tostring form) "&"))]
+      (set seenG? (or seenG? G?))
+      (if (and G? (not preG?))
+           (: (tostring form) :sub 2)
+      (and (not G?)
+                 (or (and preG? (not seenG?)) (and seenG? (not preG?))))
+        form
+        nil
+        ))))
+
+(fn mod.|| [& body]
+  (let [preG (filter-forms true body)
+        postG (filter-forms false body)]
+    `((. ,(unpack preG)) ,(unpack postG))))
+
+(fn mod.|% [& body]
+  (let [preG (filter-forms% true body)
+        postG (filter-forms% false body)]
+    `(: (. ,(unpack preG)) ,(unpack postG))))
 
 (fn mod.M$ [& body]
   `(#(do

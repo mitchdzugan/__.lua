@@ -10,6 +10,16 @@
        (set (. ,M :active-key) nil)
        res#)))
 
+(fn M.module-like? [m]
+  (var has-module-prop? false)
+  (var has-exports-prop? false)
+  (var num-props 0)
+  (each [k (pairs m) &until (>= num-props 2)]
+    (when (= k :exports) (set has-exports-prop? true))
+    (when (= k :$$:module) (set has-module-prop? true))
+    (set num-props (+ 1 num-props)))
+  (and has-module-prop? has-exports-prop?))
+
 (fn M.meta [m ...]
   (?. m :$$:module ...))
 
@@ -20,21 +30,22 @@
 (local _ (require :core))
 
 (fn M.module? [m]
-  (let [key (M.meta m :key)]
-    (_.fn? key)))
+  (and (M.module-like? m) (let [key (M.meta m :key)] (_.fn? key))))
 
 (fn M.made-now? [m]
-  (let [key (M.meta m :key)]
-    (and key (= :Fennel (?. (fennel.getinfo key) :what)))))
+  (and (M.module-like? m)
+       (let [key (M.meta m :key)]
+         (and key (= :Fennel (?. (fennel.getinfo key) :what))))))
 
 (fn M.import [reqstring set-val]
   (with-key M
-    (let [mod (require reqstring)]
-      (when (M.module? mod)
+    (let [mod (require reqstring)
+          module? (M.module? mod)]
+      (when module?
         (tset M.full-set reqstring set-val))
       (when (M.made-now? mod)
         (tset M.active-set reqstring set-val))
-      mod)))
+      (if module? mod.exports mod))))
 
 (fn M.refresh-modules! []
   (let [reloads (icollect [reqstring set-val (pairs M.active-set)]

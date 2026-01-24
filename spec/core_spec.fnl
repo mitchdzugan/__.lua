@@ -2,6 +2,17 @@
 (import-macros _ :__)
 
 (desc "util library"
+  (spec "_.||"
+    (assert.same 1 (_.|| {:a #$1} :a & 1)))
+  (spec "_.|%"
+    (assert.same "2345" (_.|% "12345" &sub 2)))
+  (spec "starts-with?"
+    (assert.same true (_.starts-with? "asdf" "a"))
+    (assert.same false (_.starts-with? "asdf" "b"))
+    (assert.same false (_.starts-with? "asdf" "A"))
+    (assert.same true (_.starts-with? "asdf" "asdf"))
+    (assert.same true (_.starts-with? "asdf" "a"))
+    )
   (spec "dig"
     (assert.same 1 (_.dig {:a {:b 1}} [:a :b])))
   (comment)
@@ -28,17 +39,15 @@
                                 2)))
     (comment "this test doesnt work because fennel paths dont get set up right"
       " ony my busted wrapped"
-      (assert.same [1 2 3] (. (_.module (import t1 :test-module)
-                                        (pub vals
-                                             [(t1.inc 0)
-                                              (do
-                                                (set t1.lolx 2)
-                                                t1.lolx)
-                                              (or ((fn []
-                                                     (t1.reload-modules!)
-                                                     t1.lolx))
-                                                  3)]))
-                              :vals))))
+      (assert.same [1 2 3] (. (_.module
+ (import t1 :test-module)
+ (pub vals [(t1.inc 0)
+            (do
+              (set t1.lolx 2)
+              t1.lolx)
+            (or ((fn []
+                   (t1.reload-modules!)
+                   t1.lolx)) 3)])) :vals))))
   (spec "assign"
     (assert.same {:a 1 :b 2} (_.assign {} {:a 1} {:b 2}))
     (assert.same {:a 1 :b 2} (_.assign {:a 2} {:a 1} {:b 2})))

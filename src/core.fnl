@@ -14,6 +14,14 @@
 (fn fn? [a] (= (type a) "function"))
 (fn co? [a] (= (type a) "thread"))
 
+(local unpack (or _G.unpack table.unpack))
+(fn pack [...] [...])
+
+(fn |% [method-name ...]
+  (let [rest-args [...]]
+    (fn [target]
+      (: target method-name (unpack rest-args)))))
+
 (fn dig [t ks fallback]
   (if (or (not (table? t)) (= 0 (length ks)))
       (or t fallback)
@@ -33,9 +41,6 @@
 
 (fn gtr [a]
   (if (fn? a) a #(. $1 a)))
-
-(local unpack (or _G.unpack table.unpack))
-(fn pack [...] [...])
 
 (fn tail [inits body-fn]
   (fn call-self [...] (tail (pack ...) body-fn))
@@ -102,7 +107,11 @@
             v (. kv-list (inc i))]
         (assign res {k v})))))
 
+(fn starts-with? [s start]
+  (= start (s:sub 1 (length start))))
+
 (-> {: table-of-flat-kvs
+     : starts-with?
      : assign
      : dig
      : nil?
@@ -113,6 +122,7 @@
      : num?
      : str?
      : bool?
+     : |%
      : gtr
      : ilist
      : ival-list
