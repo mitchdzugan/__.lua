@@ -3,12 +3,13 @@
 
 (local BASE_CLASS_IDENT (fn []))
 
-(fn subclass? [any]
-  (and (_.table? any) (_.fn? any.get-base-class-ident)
-       (= (any.get-base-class-ident) BASE_CLASS_IDENT)))
-
 (local BaseClass (_class "BaseClase"))
 (fn BaseClass.get-base-class-ident [] BASE_CLASS_IDENT)
+
+(fn subclass? [any base]
+  (and (_.table? any) (_.fn? any.get-base-class-ident)
+       (= (any.get-base-class-ident) BASE_CLASS_IDENT)
+       (any:isInstanceOf (or base BaseClass))))
 
 (fn class [name ...]
   (_class name BaseClass ...))

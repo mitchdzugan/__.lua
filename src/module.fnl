@@ -1,3 +1,6 @@
+(local fennel (require :fennel))
+(local _ (require :core))
+
 (local M {:active-set {} :full-set {}})
 
 (fn M.get-key [] (. M :active-key))
@@ -11,14 +14,16 @@
        res#)))
 
 (fn M.module-like? [m]
-  (var has-module-prop? false)
-  (var has-exports-prop? false)
-  (var num-props 0)
-  (each [k (pairs m) &until (>= num-props 2)]
-    (when (= k :exports) (set has-exports-prop? true))
-    (when (= k :$$:module) (set has-module-prop? true))
-    (set num-props (+ 1 num-props)))
-  (and has-module-prop? has-exports-prop?))
+  (and (_.table? m)
+    (do
+      (var has-module-prop? false)
+      (var has-exports-prop? false)
+      (var num-props 0)
+      (each [k (pairs m) &until (>= num-props 2)]
+        (when (= k :exports) (set has-exports-prop? true))
+        (when (= k :$$:module) (set has-module-prop? true))
+        (set num-props (+ 1 num-props)))
+      (and has-module-prop? has-exports-prop?))))
 
 (fn M.meta [m ...]
   (?. m :$$:module ...))
@@ -26,16 +31,15 @@
 (fn M.new-key []
   (set M.active-key (fn [])))
 
-(local fennel (require :fennel))
-(local _ (require :core))
-
 (fn M.module? [m]
-  (and (M.module-like? m) (let [key (M.meta m :key)] (_.fn? key))))
+  (and (M.module-like? m)
+    (let [key (M.meta m :key)] (_.fn? key))))
 
 (fn M.made-now? [m]
   (and (M.module-like? m)
-       (let [key (M.meta m :key)]
-         (and key (= :Fennel (?. (fennel.getinfo key) :what))))))
+    (let [key (M.meta m :key)]
+      (and key
+        (= :Fennel (?. (fennel.getinfo key) :what))))))
 
 (fn M.import [reqstring set-val]
   (with-key M
