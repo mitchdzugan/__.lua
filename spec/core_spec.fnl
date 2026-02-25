@@ -6,18 +6,20 @@
   (local Class2 (_.class :Class2))
   (local SClass1 (Class1:subclass :SClass1))
   (desc "util library"
-    (assert.same 1 1)
+    (spec "_.mapv"
+      (assert.same [5 12 21 32 45]
+        (_.mapv [5 6 7 8 9] #(* $1 $2))))
+    (spec "_.filter"
+      (assert.same [5 8]
+        (_.filter [5 6 7 8 9] #(= 2 (% (* $1 $2) 3)))))
+    (spec "_.reduce"
+      (assert.same 120
+        (_.reduce [5 6 7 8 9] #(+ $1 (* $2 $3)) 5)))
     (spec "_.||"
       (assert.same 1
         (_.|| {:a #$1} :a & 1)))
     (spec "_.|%"
       (assert.same "2345" (_.|% "12345" &sub 2)))
-    (spec "starts-with?"
-      (assert.same true (_.starts-with? "asdf" "a"))
-      (assert.same false (_.starts-with? "asdf" "b"))
-      (assert.same false (_.starts-with? "asdf" "A"))
-      (assert.same true (_.starts-with? "asdf" "asdf"))
-      (assert.same true (_.starts-with? "asdf" "a")))
     (spec "dig"
       (assert.same 1
         (_.dig {:a {:b 1}} [:a :b])))

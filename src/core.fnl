@@ -65,15 +65,22 @@
         _ (let [[ip1 ip2 ip3 & rest] args]
             (f (It [ip1 ip2 ip3]) (unpack rest)))))))
 
-(local ilist (ifn1 1 #(icollect [v ($1:unpack)] v)))
-(local ival-list (ifn1 1 #(icollect [_ v ($1:unpack)] v)))
-(local itable (ifn1 1 #(collect [k v ($1:unpack)] (values k v))))
+(local ilist (ifn1 1
+               #(icollect [v ($1:unpack)] v)))
+
+(local ival-list (ifn1 1
+                   #(icollect [_ v ($1:unpack)] v)))
+
+(local itable (ifn1 1
+                #(collect [k v ($1:unpack)] (values k v))))
+
 (fn imap-impl [map i]
   (let [f (co-wrap (fn []
                      (tail (pack (i:unpack))
                        (fn [recur it-fn st-t c-var]
                          (let [(k v) (it-fn st-t c-var)]
-                           (if (nil? k) nil
+                           (if (nil? k)
+                               nil
                                (do
                                  (coroutine.yield (pack (map k v)))
                                  (recur it-fn st-t k))))))))]
@@ -84,7 +91,8 @@
   (imap-impl map (It [...])))
 
 (fn imap-vals [map ...]
-  (imap-impl (fn [k v] (values k (map k v))) (It [...])))
+  (imap-impl (fn [k v] (values k (map k v)))
+    (It [...])))
 
 (fn mk-multi-n [n]
   (fn [...]
@@ -107,11 +115,38 @@
             v (. kv-list (inc i))]
         (assign res {k v})))))
 
-(fn starts-with? [s start]
-  (= start (s:sub 1 (length start))))
+(fn for-each [a f]
+  (local used-inds {})
+  (each [ind v (ipairs a)]
+    (tset used-inds ind true)
+    (f v ind a f))
+  (each [k v (pairs a)]
+    (when (not (. used-inds k))
+      (f v k a f))))
+
+(fn reduce [a f i]
+  (var acc i)
+  (for-each a #(set acc (f acc $1 $2 $3 $4 i)))
+  acc)
+
+(fn mapv [a f]
+  (icollect [ind v (ipairs a)]
+    (f v ind a f)))
+
+(local filter #(mapv $1 (fn [v ...] (when ($2 v ...) v))))
+
+(local null {})
+(local Null {})
+(setmetatable Null {:__call #(if (nil? $2) null $2)})
+(fn null? [any] (= null any))
 
 (-> {: table-of-flat-kvs
-     : starts-with?
+     : null
+     : null?
+     : Null
+     : mapv
+     : filter
+     : reduce
      : assign
      : dig
      : nil?

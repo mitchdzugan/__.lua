@@ -82,7 +82,7 @@
             f))
       (and (sym? f)
         (= f (sym (tostring f))))
-      (if (= "_" (tostring f)) _Sym
+      (if (= "_" (tostring f)) f
           (= "loc" (tostring f))
           (sym :local)
           f)
