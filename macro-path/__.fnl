@@ -87,69 +87,67 @@
           (sym :local)
           f)
       (sequence? f)
-      (icollect [_ ff (ipairs f)] (swap-sym _Sym ff))
+      (do
+        (var seen-amp? false)
+        (var prev-amp? false)
+        (each [_ ff (ipairs f)]
+          (set prev-amp? (and (not prev-amp?) seen-amp?))
+          (set seen-amp? (or seen-amp? (= ff (sym "&")))))
+        (if prev-amp?
+            f
+            (icollect [_ ff (ipairs f)] (swap-sym _Sym ff))))
       (list? f)
       (let [[f1 & fs] f]
-	(if (= f1 (sym "icollect"))
-	    (let [[binds & fbody] fs
-	          [sk sv fl] binds]
-	    `(icollect [,sk ,sv ,(swap-sym _Sym fl)]
-	       ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
-
-	    (= f1 (sym "icollect_"))
-	    (let [[binds & fbody] fs
-	          [sv fl] binds]
-	    `(icollect [_ignore# ,sv ,(swap-sym _Sym fl)]
-	       ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
-
-
-	    (= f1 (sym "collect"))
-	    (let [[binds & fbody] fs
-	          [sk sv fl] binds]
-	    `(collect [,sk ,sv ,(swap-sym _Sym fl)]
-	       ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
-
-	    (= f1 (sym "collect_"))
-	    (let [[binds & fbody] fs
-	          [sv fl] binds]
-	    `(collect [_ignore# ,sv ,(swap-sym _Sym fl)]
-	       ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
-
-	    (= f1 (sym "accumulate"))
-	    (let [[binds & fbody] fs
-	          [sa fi sk sv fl] binds]
-	    `(accumulate [,sa ,(swap-sym _Sym fi)
-			  ,sk ,sv ,(swap-sym _Sym fl)]
-	       ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
-
-	    (= f1 (sym "accumulate_"))
-	    (let [[binds & fbody] fs
-	          [sa fi sv fl] binds]
-	    `(accumulate [,sa ,(swap-sym _Sym fi)
-			  _ignore# ,sv ,(swap-sym _Sym fl)]
-	       ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
-
-	    (= f1 (sym "fcollect"))
-	    (let [[binds & fbody] fs
-	          [si fl fu] binds]
-	    `(fcollect [,si ,(swap-sym _Sym fl) ,(swap-sym _Sym fu)]
-	       ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
-
-	    (= f1 (sym "faccumulate"))
-	    (let [[binds & fbody] fs
-	          [sa fi si fl fu] binds]
-	    `(faccumulate [,sa ,(swap-sym _Sym fi)
-			  ,si ,(swap-sym _Sym fl) ,(swap-sym _Sym fu)]
-	       ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
-
-        (case (multi-sym? f1)
-          (where [s1 s2 nil]
-                 (and (= f1 (sym (tostring f1)))
-                   (= "_" (tostring s1))
-                   (not= nil (. mod (tostring s2)))))
-          ((. mod (tostring s2)) (unpack (icollect [_ ff (ipairs fs)]
-                                           (swap-sym _Sym ff))))
-          _ (list (unpack (icollect [_ ff (ipairs f)] (swap-sym _Sym ff)))))))
+        (if (= f1 (sym "icollect"))
+            (let [[binds & fbody] fs
+                  [sk sv fl] binds]
+              `(icollect [,sk ,sv ,(swap-sym _Sym fl)]
+                 ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
+            (= f1 (sym "icollect_"))
+            (let [[binds & fbody] fs
+                  [sv fl] binds]
+              `(icollect [_ignore# ,sv ,(swap-sym _Sym fl)]
+                 ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
+            (= f1 (sym "collect"))
+            (let [[binds & fbody] fs
+                  [sk sv fl] binds]
+              `(collect [,sk ,sv ,(swap-sym _Sym fl)]
+                 ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
+            (= f1 (sym "collect_"))
+            (let [[binds & fbody] fs
+                  [sv fl] binds]
+              `(collect [_ignore# ,sv ,(swap-sym _Sym fl)]
+                 ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
+            (= f1 (sym "accumulate"))
+            (let [[binds & fbody] fs
+                  [sa fi sk sv fl] binds]
+              `(accumulate [,sa ,(swap-sym _Sym fi) ,sk ,sv ,(swap-sym _Sym fl)]
+                 ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
+            (= f1 (sym "accumulate_"))
+            (let [[binds & fbody] fs
+                  [sa fi sv fl] binds]
+              `(accumulate [,sa ,(swap-sym _Sym fi) _ignore# ,sv ,(swap-sym _Sym
+                                                                            fl)]
+                 ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
+            (= f1 (sym "fcollect"))
+            (let [[binds & fbody] fs
+                  [si fl fu] binds]
+              `(fcollect [,si ,(swap-sym _Sym fl) ,(swap-sym _Sym fu)]
+                 ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
+            (= f1 (sym "faccumulate"))
+            (let [[binds & fbody] fs
+                  [sa fi si fl fu] binds]
+              `(faccumulate [,sa ,(swap-sym _Sym fi) ,si ,(swap-sym _Sym fl) ,(swap-sym _Sym
+                                                                                        fu)]
+                 ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
+            (case (multi-sym? f1)
+              (where [s1 s2 nil]
+                     (and (= f1 (sym (tostring f1)))
+                       (= "_" (tostring s1))
+                       (not= nil (. mod (tostring s2)))))
+              ((. mod (tostring s2)) (unpack (icollect [_ ff (ipairs fs)]
+                                               (swap-sym _Sym ff))))
+              _ (list (unpack (icollect [_ ff (ipairs f)] (swap-sym _Sym ff)))))))
       (table? f)
       (collect [fk fv (pairs f)]
         (values (swap-sym _Sym fk) (swap-sym _Sym fv)))
