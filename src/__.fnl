@@ -6,5 +6,6 @@
 (local Enum (require :Enum))
 (local module_ (require :module))
 (local im (require :im))
+(local coll (require :coll))
 
-(_.assign {: _ : im : Maybe : Map : Enum} dbg class module_ _)
+(_.assign {: _ : im : Maybe : Map : Enum} dbg coll class module_ _)
