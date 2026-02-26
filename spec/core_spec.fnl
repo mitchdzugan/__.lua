@@ -25,7 +25,7 @@
      (assert.same {:a 1 :b 2} (_.assign {} {:a 1} {:b 2}))
      (assert.same {:a 1 :b 2} (_.assign {:a 2} {:a 1} {:b 2})))
    (->> (_.tail$ [[i s] 0 0]
-          (if (>= i 10) s ($1 (+ 1 i) (+ i s))))
+          (&? (>= i 10) s ($1 (+ 1 i) (+ i s))))
         (assert.same 45)
         (spec "tail"))
    (->> (_.ival-list (ipairs [:a :b :c :d :e]))
@@ -51,7 +51,6 @@
         _.ilist
         (assert.same [11 12 13 14 15])
         (spec "tvals"))
-   (->> (let [n (_.co-wrap (fn [] (_.co-yield 1) 2))]
-          [(n) (n)])
+   (->> (&= [n (_.co-wrap (fn [] (_.co-yield 1) 2))] [(n) (n)])
         (assert.same [{:val 1 :final? false} {:val 2 :final? true}])
         (spec "co-wrap"))))

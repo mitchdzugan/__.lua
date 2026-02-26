@@ -1,3 +1,20 @@
+(local __ (require :core))
+(local ListMetatable {})
+(local ObjectMetatable {})
+
+(fn list [...]
+  (let [l [...]]
+    (setmetatable l ListMetatable)))
+
+(fn list? [a] (= ListMetatable (getmetatable a)))
+
+(fn object [...]
+  (-> (collect [_ [k v] (ipairs [...])]
+        (values k v))
+      (setmetatable ObjectMetatable)))
+
+(fn object? [a] (= ObjectMetatable (getmetatable a)))
+
 (fn for-each [a f]
   (local used-inds {})
   (each [ind v (ipairs a)]
@@ -18,4 +35,4 @@
 
 (local filter #(mapv $1 (fn [v ...] (when ($2 v ...) v))))
 
-(-> {: for-each : mapv : filter : reduce})
+(-> {: for-each : mapv : filter : reduce : list : list? : object : object?})

@@ -2,14 +2,6 @@
 
 (local im {})
 
-(local ListMetatable {})
-
-(fn im.list [...]
-  (let [l [...]]
-    (setmetatable l ListMetatable)))
-
-(fn im.list? [a] (= ListMetatable (getmetatable a)))
-
 (fn im.clone [a deep?]
   (fn clone-table [t]
     (let [res {}]
@@ -19,7 +11,9 @@
 
   (if (_.table? a) (setmetatable (clone-table a) (getmetatable a)) a))
 
-(fn im.deep-clone [a] (im.clone a true))
+(fn im.deep-clone [a]
+  (im.clone a
+    true))
 (fn im.push [t v]
   (im.assoc t (_.inc (length t)) v))
 

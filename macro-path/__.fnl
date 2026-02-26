@@ -140,6 +140,14 @@
               `(faccumulate [,sa ,(swap-sym _Sym fi) ,si ,(swap-sym _Sym fl) ,(swap-sym _Sym
                                                                                         fu)]
                  ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
+            (= f1 (sym "&?"))
+            `(if ,(unpack (swap-sym _Sym fs)))
+            (= f1 (sym "&="))
+            `(let ,(unpack (swap-sym _Sym fs)))
+            (= f1 (sym "&L"))
+            `((. (require :__) :list) ,(unpack (swap-sym _Sym fs)))
+            (= f1 (sym "&O"))
+            `((. (require :__) :object) ,(unpack (swap-sym _Sym fs)))
             (case (multi-sym? f1)
               (where [s1 s2 nil]
                      (and (= f1 (sym (tostring f1)))
