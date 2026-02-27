@@ -16,13 +16,15 @@
 (fn object? [a] (= ObjectMetatable (getmetatable a)))
 
 (fn for-each [a f]
-  (local used-inds {})
-  (each [ind v (ipairs a)]
-    (tset used-inds ind true)
-    (f v ind a f))
-  (each [k v (pairs a)]
-    (when (not (. used-inds k))
-      (f v k a f))))
+  (when (__.table? a)
+    (local used-inds {})
+    (each [ind v (ipairs a)]
+      (tset used-inds ind true)
+      (f v ind a f))
+    (when (not (list? a))
+      (each [k v (pairs a)]
+        (when (not (. used-inds k))
+          (f v k a f))))))
 
 (fn reduce [a f i]
   (var acc i)

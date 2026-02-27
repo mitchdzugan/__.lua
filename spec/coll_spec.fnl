@@ -14,6 +14,12 @@
      (assert.is_true (_.object? (_.im.assoc (&O) 1 2))))
    (spec :object
      (assert.same {:a 1 2 :b} (&O [:a 1] [2 :b])))
+   (spec "&for"
+     (assert.same [:a :b :c]
+       (do
+         (var res (&L))
+         (&for [:a :b :c] (set res (_.im.push res &it)))
+         res)))
    (spec "_.mapv"
      (assert.same [5 12 21 32 45]
        (_.mapv [5 6 7 8 9] #(* $1 $2))))

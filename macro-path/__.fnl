@@ -72,17 +72,25 @@
             [f]))
       [f]))
 
-(fn swap-sym [_Sym f]
+(fn swap-sym-base [it-sym _Sym f]
+  (local swap-sym #(swap-sym-base it-sym $...))
   (if (and (multi-sym? f)
         (= f (sym (tostring f))))
       (let [[s1 & ss] (multi-sym? f)]
-        (if (= "_" (tostring s1))
+        (if (= "&it.ind" (tostring f))
+            `(. ,it-sym :k)
+            (= "&it.src" (tostring f))
+            `(. ,it-sym :c)
+            (= "_" (tostring s1))
             (sym (accumulate [res (tostring _Sym) _ s (ipairs ss)]
                    (.. res "." (tostring s))))
             f))
       (and (sym? f)
         (= f (sym (tostring f))))
-      (if (= "_" (tostring f)) f
+      (if (= "_" (tostring f))
+          f
+          (= "&it" (tostring f))
+          `(. ,it-sym :v)
           (= "loc" (tostring f))
           (sym :local)
           f)
@@ -142,6 +150,20 @@
                  ,(unpack (icollect [_ ff (ipairs fbody)] (swap-sym _Sym ff)))))
             (= f1 (sym "&?"))
             `(if ,(unpack (swap-sym _Sym fs)))
+            (= f1 (sym "&for"))
+            (let [[fc & ifs] fs
+                  swapped-fc (swap-sym _Sym fc)]
+              `((. (require :__) :for-each) ,swapped-fc
+                                            (fn [v# k# c# f#]
+                                              ,(let [it-sym-inner (gensym)]
+                                                 (local inner-forms
+                                                        (swap-sym-base it-sym-inner
+                                                                       _Sym fs))
+                                                 `(let [,it-sym-inner {:v v#
+                                                                       :k k#
+                                                                       :c c#
+                                                                       :f f#}]
+                                                    ,(unpack inner-forms))))))
             (= f1 (sym "&="))
             `(let ,(unpack (swap-sym _Sym fs)))
             (= f1 (sym "&L"))
@@ -171,7 +193,8 @@
                                    :id (or "." "")}}
                  :imports {}}]
        ((fn []
-          ,(unpack (->> (icollect [_ f (ipairs body)] (swap-sym _Sym f))
+          ,(unpack (->> (icollect [_ f (ipairs body)]
+                          (swap-sym-base `(-> nil) _Sym f))
                         (flatmap #(map-form MOD $1))))))
        (. ,MOD :pub))))
 
